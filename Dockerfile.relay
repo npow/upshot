@@ -10,6 +10,6 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:$PATH"
 
 EXPOSE 8082
-# Pre-install claude-relay at build time (avoids uvx cache staleness)
-RUN uvx --reinstall claude-relay --help > /dev/null 2>&1 || true
-CMD ["uvx", "claude-relay", "serve", "--host", "0.0.0.0"]
+# Install claude-relay from git (includes stdin piping fix for large prompts)
+RUN uv pip install --system "claude-relay @ git+https://github.com/npow/claude-relay.git@main"
+CMD ["claude-relay", "serve", "--host", "0.0.0.0"]
