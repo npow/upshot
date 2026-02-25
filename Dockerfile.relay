@@ -9,5 +9,5 @@ RUN npm install -g @anthropic-ai/claude-code
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:$PATH"
 
-EXPOSE 18082
+EXPOSE 8082
 CMD ["uvx", "claude-relay", "serve", "--host", "0.0.0.0"]
