@@ -2,7 +2,8 @@ baseURL = "https://npow.github.io/upshot/"
 languageCode = "en-us"
 title = "Upshot"
 theme = "PaperMod"
-paginate = 30
+[pagination]
+  pagerSize = 30
 
 [params]
   env = "production"
