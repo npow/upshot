@@ -45,11 +45,17 @@ feeds=(
 
   # --- Labs / Official ---
   "https://openai.com/blog"
+  "https://developers.openai.com/blog/"
+  "https://openai.com/news/"
   "https://deepmind.google/blog/"
   "https://blog.research.google/"
   "https://huggingface.co/blog"
   "https://bair.berkeley.edu/blog/"
   "https://jalammar.github.io/"
+
+  # --- Research Groups ---
+  "https://berkeleyrdi.substack.com/"               # Agentic AI Weekly (Berkeley RDI)
+  "https://aicollective.substack.com/"              # The AI Collective Newsletter
 
   # --- General ---
   "https://elvissaravia.substack.com/"              # NLP Elvis
