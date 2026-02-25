@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 _client: anthropic.Anthropic | None = None
 
 # Bump this when you change prompts to invalidate cache
-PROMPT_VERSION = "v4"
+PROMPT_VERSION = "v5"
 
 
 def get_client() -> anthropic.Anthropic:
@@ -237,11 +237,13 @@ def synthesize_briefing(items: list[dict]) -> str:
 
     context = "\n\n".join(context_parts)
 
-    prompt = f"""You are a senior tech editor writing a daily intelligence briefing from {len(items)} items. Maximize information density — every word must earn its place.
+    prompt = f"""You are a senior tech editor writing a daily intelligence briefing from {len(items)} items across {len(set(item.get('source','') for item in items))} sources. Maximize information density — every word must earn its place.
+
+CRITICAL: You must not drop important news. Scan ALL items from ALL sources. If a source contains a genuinely newsworthy claim, finding, product launch, funding round, policy action, or research result, it MUST appear in the briefing. It is acceptable to omit items that are purely tutorial/educational, listicles, or opinion without new information — but any item reporting new facts, data, or events must be covered. When in doubt, include it. Err on the side of comprehensive coverage over brevity.
 
 Format:
 - 1-2 sentence lead: the single most important thing today + one secondary theme
-- 3-6 theme sections, each: **Bold headline phrase** followed by 1-3 bullets
+- 5-12 theme sections (use as many as needed to cover all newsworthy items), each: **Bold headline phrase** followed by 1-4 bullets
 - Bullets: state the fact/claim directly. No setup, no "importantly," no "this means." Just the information.
 - If a bullet has a non-obvious implication, append it after an em dash
 - Every bullet MUST end with a source link so readers can drill in. Format: "claim or fact ([source label](URL))" — use the URLs provided with each item
@@ -256,6 +258,7 @@ Anti-patterns to avoid:
 - Bullet points that just summarize an article without extracting the actual claim or number
 - Using two sentences where one compound sentence works
 - Adjectives that don't add information (significant, notable, important, interesting)
+- DROPPING newsworthy items because the briefing "feels long enough" — length is fine, missing news is not
 
 Here are today's items:
 
