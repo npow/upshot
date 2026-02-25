@@ -429,6 +429,7 @@ async def chat_completions(request: Request):
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            limit=2**20,
         )
         proc.stdin.write(stdin_text.encode())
         proc.stdin.write_eof()
@@ -533,6 +534,7 @@ async def responses(request: Request):
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            limit=2**20,
         )
         proc.stdin.write(stdin_text.encode())
         proc.stdin.write_eof()
@@ -706,6 +708,7 @@ async def anthropic_messages(request: Request):
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            limit=2**20,
         )
         proc.stdin.write(stdin_text.encode())
         proc.stdin.write_eof()
