@@ -70,6 +70,20 @@ def discover_feed_url(url: str) -> str:
 
     url = url.rstrip("/")
 
+    # 0. Check if the URL itself is already a feed
+    try:
+        resp = httpx.get(url, timeout=timeout, follow_redirects=True)
+        content_type = resp.headers.get("content-type", "")
+        if resp.status_code == 200 and (
+            "xml" in content_type or "rss" in content_type or "atom" in content_type
+            or resp.text.strip().startswith("<?xml")
+            or "<rss" in resp.text[:500]
+            or "<feed" in resp.text[:500]
+        ):
+            return url
+    except httpx.HTTPError:
+        pass
+
     # 1. Substack shortcut
     substack_feed = _normalize_substack_url(url)
     if substack_feed:

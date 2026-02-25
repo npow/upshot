@@ -1,0 +1,29 @@
+baseURL = "https://npow.github.io/upshot/"
+languageCode = "en-us"
+title = "Upshot"
+theme = "PaperMod"
+paginate = 30
+
+[params]
+  env = "production"
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowShareButtons = false
+
+  [params.homeInfoParams]
+    Title = "Upshot"
+    Content = "Daily AI/LLM intelligence briefings — synthesized from 40+ newsletters and feeds."
+
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/npow/upshot"
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true

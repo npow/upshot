@@ -21,3 +21,5 @@ venv/
 *.m4a
 *.opus
 downloads/
+blog/public/
+blog/resources/
