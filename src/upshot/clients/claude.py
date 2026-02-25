@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 _client: anthropic.Anthropic | None = None
 
 # Bump this when you change prompts to invalidate cache
-PROMPT_VERSION = "v3"
+PROMPT_VERSION = "v4"
 
 
 def get_client() -> anthropic.Anthropic:
@@ -170,6 +170,27 @@ Respond ONLY with valid JSON, no markdown formatting."""
     return result
 
 
+def _interleave_by_source(items: list[dict]) -> list[dict]:
+    """Reorder items round-robin by source for maximum diversity."""
+    from collections import OrderedDict
+
+    buckets: OrderedDict[str, list[dict]] = OrderedDict()
+    for item in items:
+        source = item.get("source", "Unknown")
+        buckets.setdefault(source, []).append(item)
+
+    result = []
+    while buckets:
+        empty_keys = []
+        for key, queue in buckets.items():
+            result.append(queue.pop(0))
+            if not queue:
+                empty_keys.append(key)
+        for key in empty_keys:
+            del buckets[key]
+    return result
+
+
 def synthesize_briefing(items: list[dict]) -> str:
     """Send all deduplicated content to Claude and return a markdown briefing.
 
@@ -181,14 +202,22 @@ def synthesize_briefing(items: list[dict]) -> str:
     """
     settings = get_settings()
 
+    # Interleave items round-robin by source so no single source dominates
+    items = _interleave_by_source(items)
+
     # Build context from all items, respecting word budget
     context_parts = []
     total_words = 0
     max_words = settings.claude.max_briefing_words
+    max_per_item = settings.claude.max_context_words_per_item
 
     for i, item in enumerate(items, 1):
         text = item.get("text", "")
         words = text.split()
+        # Truncate individual items to prevent one long article from eating the budget
+        if len(words) > max_per_item:
+            words = words[:max_per_item]
+            text = " ".join(words) + "..."
         if total_words + len(words) > max_words:
             remaining = max_words - total_words
             if remaining > 100:
@@ -217,6 +246,7 @@ Format:
 - If a bullet has a non-obvious implication, append it after an em dash
 - Every bullet MUST end with a source link so readers can drill in. Format: "claim or fact ([source label](URL))" — use the URLs provided with each item
 - When a single bullet synthesizes multiple sources, append each link separated by commas: "claim ([label1](url1), [label2](url2))"
+- When citing multiple different articles from the same publication, add a short distinguisher: ([Source: short article title](URL)) — e.g. ([HF Blog: DeepSeek Moment](url1), [HF Blog: One Year Later](url2))
 - Do NOT include a separate links/references section at the end — all links are inline in bullets
 - No intro/outro fluff, no section transitions, no "let's dive in"
 - Do NOT include a title/date header
