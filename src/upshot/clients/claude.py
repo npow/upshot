@@ -31,7 +31,7 @@ def get_client() -> anthropic.Anthropic:
             kwargs["api_key"] = settings.anthropic_api_key or "unused"
         elif settings.anthropic_api_key:
             kwargs["api_key"] = settings.anthropic_api_key
-        _client = anthropic.Anthropic(timeout=900.0, **kwargs)
+        _client = anthropic.Anthropic(timeout=1800.0, max_retries=0, **kwargs)
     return _client
 
 
