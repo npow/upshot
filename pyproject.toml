@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "upshot"
+version = "0.1.0"
+description = "Blinkist for newsletters — synthesizes your feeds into a single daily intelligence briefing"
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.9,<1",
+    "rich>=13,<14",
+    "pydantic>=2,<3",
+    "pydantic-settings>=2,<3",
+    "pyyaml>=6,<7",
+    "google-api-python-client>=2,<3",
+    "google-auth-oauthlib>=1,<2",
+    "google-auth-httplib2>=0.2",
+    "trafilatura>=1.6,<2",
+    "beautifulsoup4>=4.12,<5",
+    "readability-lxml>=0.8,<1",
+    "lxml>=5,<6",
+    "sentence-transformers>=2.2,<4",
+    "scikit-learn>=1.3,<2",
+    "numpy>=1.24,<3",
+    "anthropic>=0.39,<1",
+    "faster-whisper>=1,<2",
+    "yt-dlp>=2024.1",
+    "pymupdf>=1.23,<2",
+    "jinja2>=3,<4",
+    "httpx>=0.25,<1",
+    "tenacity>=8,<10",
+    "feedparser>=6.0,<7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7,<9",
+    "pytest-asyncio>=0.21",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+upshot = "upshot.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/upshot"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

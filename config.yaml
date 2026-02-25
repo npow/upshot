@@ -1,0 +1,67 @@
+# Gmail settings
+gmail:
+  labels:
+    - "Newsletters"
+  max_results: 50
+  # Days to look back on first run
+  initial_lookback_days: 7
+
+# Content extraction
+extraction:
+  # Rate limiting
+  requests_per_second: 2.0
+  per_domain_requests_per_second: 1.0
+  # Timeouts (seconds)
+  fetch_timeout: 30
+  # Max content length (chars) to store
+  max_content_length: 50000
+
+# Deduplication
+dedup:
+  # Clustering distance threshold (lower = stricter dedup)
+  # 0.35 distance ≈ 0.65 cosine similarity
+  distance_threshold: 0.35
+  # Days to look back for cross-day merging
+  lookback_days: 7
+  embedding_model: "all-MiniLM-L6-v2"
+
+# Claude enrichment (via claude-relay)
+claude:
+  model: "sonnet"
+  base_url: "http://localhost:8082"
+  max_context_words_per_item: 2000
+  max_tokens: 4096
+  # Max total words to send in the synthesis briefing prompt
+  max_briefing_words: 80000
+
+# Podcast transcription
+transcription:
+  whisper_model: "large-v3"
+  compute_type: "int8"
+  device: "cpu"
+  max_duration_minutes: 120
+  partial_duration_minutes: 30
+
+# Ranking weights (must sum to 1.0)
+ranking:
+  weight_coverage: 0.25
+  weight_novelty: 0.25
+  weight_interest: 0.25
+  weight_contrarian: 0.10
+  weight_recency: 0.15
+
+# Digest
+digest:
+  top_stories_count: 5
+  hidden_gems_count: 3
+  trend_watch_count: 3
+  output_dir: "digests"
+
+# RSS/URL feeds
+feeds:
+  fetch_timeout: 30
+  max_items_per_feed: 50
+
+# Database
+database:
+  path: "upshot.db"
