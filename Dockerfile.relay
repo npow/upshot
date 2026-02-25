@@ -13,5 +13,5 @@ ENV PATH="/root/.local/bin:$PATH"
 COPY vendor/claude-relay /tmp/claude-relay
 RUN uv tool install /tmp/claude-relay && rm -rf /tmp/claude-relay
 
-EXPOSE 8082
+EXPOSE 18082
 CMD ["claude-relay", "serve", "--host", "0.0.0.0"]
