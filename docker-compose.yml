@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile.relay
     volumes:
       - ${HOME}/.claude:/root/.claude:ro
+      - ${HOME}/.claude.json:/root/.claude.json:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8082/health"]
