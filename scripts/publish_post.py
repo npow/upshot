@@ -42,30 +42,16 @@ def publish(target_date: str) -> None:
 
     body = body.strip()
 
-    # Extract first paragraph as description
-    first_para = ""
-    for line in body.split("\n"):
-        stripped = line.strip()
-        if stripped and not stripped.startswith(("---", "**", "#", "-", "|", ">")):
-            first_para = stripped[:300]
-            break
-    if not first_para:
-        # Fall back to first non-empty line
-        for line in body.split("\n"):
-            if line.strip():
-                first_para = line.strip()[:300]
-                break
-
     # Format date for display
     dt = datetime.strptime(target_date, "%Y-%m-%d")
     title = f"AI Briefing — {dt.strftime('%B %d, %Y').replace(' 0', ' ')}"
 
-    # Build frontmatter
+    # Build frontmatter (no description — avoids duplicating the lead paragraph
+    # on the post page; Hugo/PaperMod auto-generates list summaries from content)
     frontmatter = f"""---
 title: "{title}"
 date: {target_date}T08:00:00Z
 draft: false
-description: "{first_para.replace('"', '\\"')}"
 tags: ["daily-briefing", "ai-news"]
 ---"""
 
