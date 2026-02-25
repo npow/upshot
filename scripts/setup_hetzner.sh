@@ -5,22 +5,24 @@
 set -euo pipefail
 
 echo "=== Cloning repo ==="
-git clone https://github.com/npow/upshot.git /root/upshot || echo "Already cloned"
+git clone git@github.com:npow/upshot.git /root/upshot || echo "Already cloned"
+
+cd /root/upshot
+git submodule update --init --recursive
+
+echo "=== Configuring git identity ==="
+git config user.name "Nissan Pow"
+git config user.email "nissan.pow@gmail.com"
 
 echo "=== Creating .env ==="
-if [ ! -f /root/upshot/.env ]; then
-  cat > /root/upshot/.env <<'EOF'
-GITHUB_TOKEN=<create PAT with repo scope at github.com/settings/tokens>
+if [ ! -f .env ]; then
+  cat > .env <<'EOF'
 GIT_USER_NAME=Nissan Pow
 GIT_USER_EMAIL=nissan.pow@gmail.com
 EOF
-  echo "⚠ Edit /root/upshot/.env and set GITHUB_TOKEN before first run"
-else
-  echo ".env already exists, skipping"
 fi
 
 echo "=== Starting services ==="
-cd /root/upshot
 docker compose up -d
 echo "Services started. claude-relay will auto-restart on reboot."
 

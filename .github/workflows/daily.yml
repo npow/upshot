@@ -15,7 +15,18 @@ jobs:
 
       - name: Trigger pipeline on Hetzner
         run: |
-          ssh -o StrictHostKeyChecking=no root@188.34.193.79 \
-            "cd /root/upshot && git pull && \
-             docker compose build pipeline && \
-             docker compose run --rm pipeline"
+          ssh -o StrictHostKeyChecking=no root@188.34.193.79 'bash -s' <<'SCRIPT'
+          set -e
+          cd /root/upshot
+          git pull
+          docker compose build pipeline
+          docker compose run --rm pipeline
+
+          # Commit and push blog post from host (has SSH keys)
+          DATE=$(date +%Y-%m-%d)
+          git add blog/content/posts/
+          if ! git diff --cached --quiet; then
+            git commit -m "briefing: $DATE"
+            git push origin main
+          fi
+          SCRIPT

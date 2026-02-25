@@ -22,6 +22,7 @@ services:
       UPSHOT_CONFIG: /app/config.docker.yaml
     volumes:
       - upshot_data:/data
+      - ./blog/content/posts:/app/blog/content/posts
     depends_on:
       claude-relay:
         condition: service_healthy
