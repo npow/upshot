@@ -3,8 +3,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.relay
+    environment:
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
     volumes:
-      - ${HOME}/.claude:/root/.claude:ro
+      - ${HOME}/.claude:/root/.claude
       - ${HOME}/.claude.json:/root/.claude.json:ro
     restart: unless-stopped
     healthcheck:
