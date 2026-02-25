@@ -46,7 +46,6 @@ feeds=(
   # --- Labs / Official ---
   "https://openai.com/blog"
   "https://developers.openai.com/blog/"
-  "https://openai.com/news/"
   "https://deepmind.google/blog/"
   "https://blog.research.google/"
   "https://huggingface.co/blog"
@@ -63,6 +62,14 @@ feeds=(
   "https://www.kdnuggets.com/"
   "https://buzzrobot.substack.com/"
   "https://artificialintelligencemadesimple.substack.com/" # AI Guide
+
+  # --- Kill the Newsletter (no public RSS) ---
+  "https://kill-the-newsletter.com/feeds/n3xge951mugqng0yi390.xml"      # Ben's Bites
+  "https://kill-the-newsletter.com/feeds/979q2dloil2irxdwwj8s.xml"      # Superhuman AI
+  "https://kill-the-newsletter.com/feeds/h42hw3e6rznjcowc8t22.xml"      # The Rundown AI
+  "https://kill-the-newsletter.com/feeds/v0jofhvzob768s9rbgmj.xml"      # The Neuron
+  "https://kill-the-newsletter.com/feeds/ojvsdbs02cj00n41debd.xml"      # TLDR AI
+  "https://kill-the-newsletter.com/feeds/8nndh44ukeb3oa1s7f0c.xml"      # AlphaSignal
 
   # --- arXiv ---
   "http://export.arxiv.org/rss/cs.LG"
