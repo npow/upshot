@@ -11,5 +11,5 @@ ENV PATH="/root/.local/bin:$PATH"
 
 EXPOSE 8082
 # Install claude-relay from git (includes stdin piping fix for large prompts)
-RUN uv pip install --system "claude-relay @ git+https://github.com/npow/claude-relay.git@main"
+RUN uv tool install "claude-relay @ git+https://github.com/npow/claude-relay.git@main"
 CMD ["claude-relay", "serve", "--host", "0.0.0.0"]
