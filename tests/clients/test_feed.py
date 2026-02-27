@@ -135,7 +135,7 @@ class TestDiscoverFeedUrl:
 
         with patch("upshot.clients.feed.get_settings") as mock_settings:
             mock_settings.return_value.feeds.fetch_timeout = 10
-            with patch("httpx.get", return_value=mock_response) as mock_get:
+            with patch("httpx.get", return_value=mock_response):
                 result = discover_feed_url("https://example.com")
 
         assert result == "https://example.com/feed"

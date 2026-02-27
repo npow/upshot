@@ -6,7 +6,7 @@ import json
 import logging
 
 from upshot.db import get_connection
-from upshot.models import ContentType, FetchStatus, PipelineRunResult, PipelineStage
+from upshot.models import ContentType, PipelineRunResult, PipelineStage
 from upshot.parsers.newsletter import parse_newsletter
 from upshot.parsers.article import fetch_article, resolve_url
 from upshot.parsers.pdf import fetch_paper

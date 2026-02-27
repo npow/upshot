@@ -1,5 +1,9 @@
 """Tests for database operations."""
 
+import sqlite3
+
+import pytest
+
 
 def test_migrations_applied(db):
     """Test that migrations create all expected tables."""
@@ -30,7 +34,6 @@ def test_email_unique_constraint(db):
     )
     db.commit()
 
-    import sqlite3
     with pytest.raises(sqlite3.IntegrityError):
         db.execute(
             """INSERT INTO emails (gmail_id, received_at, content_hash)
@@ -46,6 +49,3 @@ def test_pipeline_runs(db):
     row = db.execute("SELECT * FROM pipeline_runs WHERE date = '2024-01-01'").fetchone()
     assert row["stage"] == "ingest"
     assert row["status"] == "running"
-
-
-import pytest

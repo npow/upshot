@@ -152,7 +152,7 @@ def service_install(host: str, port: int) -> None:
     plist.write_text(_generate_plist(host, port))
 
     subprocess.run(["launchctl", "load", str(plist)], check=True)
-    print(f"Service installed and started.")
+    print("Service installed and started.")
     print(f"  Listening on http://{host}:{port}")
     print(f"  Plist:  {plist}")
     print(f"  Logs:   {log_dir}/")
@@ -202,7 +202,7 @@ def service_status() -> None:
     plist = _plist_path()
     if not plist.exists():
         print("Service is not installed.")
-        print(f"  Run: claude-relay service install")
+        print("  Run: claude-relay service install")
         return
 
     result = subprocess.run(
@@ -211,7 +211,7 @@ def service_status() -> None:
         text=True,
     )
     if result.returncode == 0:
-        print(f"Service is installed and running.")
+        print("Service is installed and running.")
         # Parse PID from output.
         for line in result.stdout.strip().splitlines():
             if "PID" in line or line.strip().startswith('"PID"'):

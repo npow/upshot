@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-
 from rich.console import Console
 
 from upshot.db import get_connection
