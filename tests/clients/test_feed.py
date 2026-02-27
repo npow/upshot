@@ -128,14 +128,24 @@ class TestDiscoverFeedUrl:
 
     def test_tries_common_paths(self):
         """Should try /feed, /rss etc. and return the first that works."""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.headers = {"content-type": "application/rss+xml"}
-        mock_response.text = SAMPLE_RSS
+        html_response = MagicMock()
+        html_response.status_code = 200
+        html_response.headers = {"content-type": "text/html"}
+        html_response.text = "<html><body>homepage</body></html>"
+
+        feed_response = MagicMock()
+        feed_response.status_code = 200
+        feed_response.headers = {"content-type": "application/rss+xml"}
+        feed_response.text = SAMPLE_RSS
+
+        def side_effect(url, **kwargs):
+            if url == "https://example.com":
+                return html_response
+            return feed_response
 
         with patch("upshot.clients.feed.get_settings") as mock_settings:
             mock_settings.return_value.feeds.fetch_timeout = 10
-            with patch("httpx.get", return_value=mock_response):
+            with patch("httpx.get", side_effect=side_effect):
                 result = discover_feed_url("https://example.com")
 
         assert result == "https://example.com/feed"
