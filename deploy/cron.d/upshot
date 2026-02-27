@@ -1,0 +1,3 @@
+# Upshot daily pipeline - 14:00 UTC
+SHELL=/bin/bash
+0 14 * * * root cd /root/upshot && timeout 50m docker compose run --rm pipeline >> /var/log/upshot.log 2>&1
