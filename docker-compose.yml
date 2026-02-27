@@ -1,5 +1,7 @@
 services:
   claude-relay:
+    image: claude-relay:latest
+    container_name: claude-relay
     networks:
       - default
       - recon_default
