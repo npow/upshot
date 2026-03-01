@@ -31,10 +31,34 @@ services:
     volumes:
       - upshot_data:/data
       - ./blog/content/posts:/app/blog/content/posts
-    depends_on:
-      claude-relay:
-        condition: service_healthy
     restart: "no"
+    networks:
+      - default
+      - recon_default
+
+  # One-shot: copies this project's cron file to the shared scheduler volume
+  cron-install:
+    image: alpine
+    volumes:
+      - scheduler-cron:/cron
+      - ./deploy/cron.d:/src:ro
+    command: sh -c "cp /src/* /cron/"
+    restart: "no"
+
+  # Shared scheduler — reads cron files from all projects via the shared volume.
+  # Activate with: docker compose --profile scheduler up -d scheduler
+  # Only one instance needed per host; whichever project starts it first wins.
+  scheduler:
+    image: docker:27-cli
+    profiles: [scheduler]
+    restart: unless-stopped
+    volumes:
+      - scheduler-cron:/etc/cron.d:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/libexec/docker/cli-plugins:/usr/libexec/docker/cli-plugins:ro
+      - /root:/root
+      - /var/log:/var/log
+    command: sh -c "apk add --no-cache coreutils > /dev/null && crond -f -l 2"
 
   # One-shot: copies this project's cron file to the shared scheduler volume
   cron-install:

@@ -6,6 +6,7 @@ import json
 import logging
 
 import anthropic
+import httpx
 
 from upshot.config import get_settings
 from upshot.db import get_connection
@@ -17,6 +18,46 @@ _client: anthropic.Anthropic | None = None
 
 # Bump this when you change prompts to invalidate cache
 PROMPT_VERSION = "v6"
+
+
+def _is_openai_compat_mode() -> bool:
+    """Treat cliproxy-style base URLs as OpenAI-compatible chat endpoints."""
+    settings = get_settings()
+    return bool(settings.claude.base_url and "cliproxy" in settings.claude.base_url)
+
+
+def _openai_compat_chat(prompt: str) -> tuple[str, int, int]:
+    """Call an OpenAI-compatible /v1/chat/completions endpoint."""
+    settings = get_settings()
+    if not settings.claude.base_url:
+        raise RuntimeError("OpenAI-compatible mode requires claude.base_url")
+
+    base = settings.claude.base_url.rstrip("/")
+    if base.endswith("/v1"):
+        url = f"{base}/chat/completions"
+    else:
+        url = f"{base}/v1/chat/completions"
+
+    headers = {
+        "Authorization": f"Bearer {settings.anthropic_api_key or 'unused'}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": settings.claude.model,
+        "max_tokens": settings.claude.max_tokens,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+
+    resp = httpx.post(url, headers=headers, json=payload, timeout=1800.0)
+    if resp.status_code >= 400:
+        raise RuntimeError(f"OpenAI compat error {resp.status_code}: {resp.text[:500]}")
+    data = resp.json()
+
+    content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+    usage = data.get("usage", {})
+    tokens_in = int(usage.get("prompt_tokens") or usage.get("input_tokens") or 0)
+    tokens_out = int(usage.get("completion_tokens") or usage.get("output_tokens") or 0)
+    return content, tokens_in, tokens_out
 
 
 def get_client() -> anthropic.Anthropic:
@@ -125,15 +166,19 @@ Respond ONLY with valid JSON, no markdown formatting."""
         logger.debug("Cache hit for cluster summarization")
         return json.loads(cached)
 
-    # Call Claude
-    client = get_client()
-    response = client.messages.create(
-        model=settings.claude.model,
-        max_tokens=settings.claude.max_tokens,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    response_text = response.content[0].text
+    # Call model
+    if _is_openai_compat_mode():
+        response_text, tokens_in, tokens_out = _openai_compat_chat(prompt)
+    else:
+        client = get_client()
+        response = client.messages.create(
+            model=settings.claude.model,
+            max_tokens=settings.claude.max_tokens,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        response_text = response.content[0].text
+        tokens_in = response.usage.input_tokens
+        tokens_out = response.usage.output_tokens
 
     # Parse JSON response
     try:
@@ -162,8 +207,8 @@ Respond ONLY with valid JSON, no markdown formatting."""
         model=settings.claude.model,
         input_hash=input_hash,
         response=json.dumps(result),
-        tokens_in=response.usage.input_tokens,
-        tokens_out=response.usage.output_tokens,
+        tokens_in=tokens_in,
+        tokens_out=tokens_out,
     )
 
     return result
@@ -251,17 +296,17 @@ Format:
 - When a single bullet synthesizes multiple sources, append each link separated by commas: "claim ([label1](url1), [label2](url2))"
 - When citing multiple different articles from the same publication, add a short distinguisher: ([Source: short article title](URL)) — e.g. ([HF Blog: DeepSeek Moment](url1), [HF Blog: One Year Later](url2))
 - Do NOT include a separate links/references section at the end — all links are inline in bullets
-- No intro/outro fluff, no section transitions, no "let's dive in"
+- No intro/outro fluff, no section transitions, no "lets dive in"
 - Do NOT include a title/date header
 
 Anti-patterns to avoid:
-- Restating what something is before saying what happened ("X, the well-known Y, has Z" → "X did Z")
+- Restating what something is before saying what happened ("X, the well-known Y, has Z" -> "X did Z")
 - Bullet points that just summarize an article without extracting the actual claim or number
 - Using two sentences where one compound sentence works
-- Adjectives that don't add information (significant, notable, important, interesting)
+- Adjectives that dont add information (significant, notable, important, interesting)
 - DROPPING newsworthy items because the briefing "feels long enough" — length is fine, missing news is not
 
-Here are today's items:
+Here are todays items:
 
 {context}
 
@@ -276,15 +321,19 @@ Write the briefing now."""
         logger.debug("Cache hit for briefing synthesis")
         return cached
 
-    # Call Claude
-    client = get_client()
-    response = client.messages.create(
-        model=settings.claude.model,
-        max_tokens=settings.claude.max_tokens,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    briefing = response.content[0].text
+    # Call model
+    if _is_openai_compat_mode():
+        briefing, tokens_in, tokens_out = _openai_compat_chat(prompt)
+    else:
+        client = get_client()
+        response = client.messages.create(
+            model=settings.claude.model,
+            max_tokens=settings.claude.max_tokens,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        briefing = response.content[0].text
+        tokens_in = response.usage.input_tokens
+        tokens_out = response.usage.output_tokens
 
     # Store in cache (raw markdown, not JSON)
     _store_cache(
@@ -292,8 +341,8 @@ Write the briefing now."""
         model=settings.claude.model,
         input_hash=input_hash,
         response=briefing,
-        tokens_in=response.usage.input_tokens,
-        tokens_out=response.usage.output_tokens,
+        tokens_in=tokens_in,
+        tokens_out=tokens_out,
     )
 
     return briefing

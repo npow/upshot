@@ -1,6 +1,6 @@
 claude:
-  model: "sonnet"
-  base_url: "http://claude-relay:18082"
+  model: "gpt-5.1"
+  base_url: "http://recon-cliproxy-1:8317"
   max_context_words_per_item: 2000
   max_tokens: 16384
   max_briefing_words: 40000
