@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import logging
+import re
+from urllib.parse import urlparse
 
 import anthropic
 import httpx
@@ -234,6 +236,59 @@ def _interleave_by_source(items: list[dict]) -> list[dict]:
             del buckets[key]
     return result
 
+def _append_tldr_links(briefing: str, items: list[dict]) -> str:
+    """Ensure every TL;DR bullet has at least one markdown source link."""
+    if "## TL;DR" not in briefing:
+        return briefing
+
+    lines = briefing.splitlines()
+    try:
+        tldr_idx = lines.index("## TL;DR")
+    except ValueError:
+        return briefing
+
+    end_idx = len(lines)
+    for i in range(tldr_idx + 1, len(lines)):
+        if lines[i].strip() == "---":
+            end_idx = i
+            break
+
+    pool: list[tuple[str, str]] = []
+    seen_urls: set[str] = set()
+    for item in items:
+        url = str(item.get("url") or "").strip()
+        if not url.startswith(("http://", "https://")):
+            continue
+        if url in seen_urls:
+            continue
+        seen_urls.add(url)
+        source = str(item.get("source") or "source").strip() or "source"
+        pool.append((source, url))
+
+    if not pool:
+        return briefing
+
+    link_re = re.compile(r"\[[^\]]+\]\(https?://[^)]+\)")
+    pool_idx = 0
+
+    for i in range(tldr_idx + 1, end_idx):
+        line = lines[i]
+        if not line.lstrip().startswith("- "):
+            continue
+        if link_re.search(line):
+            continue
+
+        source, url = pool[pool_idx % len(pool)]
+        pool_idx += 1
+        domain = urlparse(url).netloc.replace("www.", "")
+        label = source if len(source) <= 40 else domain
+        lines[i] = line.rstrip() + f" ([{label}]({url}))"
+
+    out = "\n".join(lines)
+    if briefing.endswith("\n"):
+        out += "\n"
+    return out
+
 
 def synthesize_briefing(items: list[dict]) -> str:
     """Send all deduplicated content to Claude and return a markdown briefing.
@@ -319,7 +374,7 @@ Write the briefing now."""
     cached = _check_cache(key)
     if cached:
         logger.debug("Cache hit for briefing synthesis")
-        return cached
+        return _append_tldr_links(cached, items)
 
     # Call model
     if _is_openai_compat_mode():
@@ -334,6 +389,8 @@ Write the briefing now."""
         briefing = response.content[0].text
         tokens_in = response.usage.input_tokens
         tokens_out = response.usage.output_tokens
+
+    briefing = _append_tldr_links(briefing, items)
 
     # Store in cache (raw markdown, not JSON)
     _store_cache(
