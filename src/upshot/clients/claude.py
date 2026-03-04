@@ -286,7 +286,7 @@ def synthesize_briefing(items: list[dict]) -> str:
 CRITICAL: You must not drop important news. Scan ALL items from ALL sources. If a source contains a genuinely newsworthy claim, finding, product launch, funding round, policy action, or research result, it MUST appear in the briefing. It is acceptable to omit items that are purely tutorial/educational, listicles, or opinion without new information — but any item reporting new facts, data, or events must be covered. When in doubt, include it. Err on the side of comprehensive coverage over brevity.
 
 Format:
-- Start with a "## TL;DR" section: 5-8 bullet points, each ONE sentence max, covering the single most important fact from each major story. No links in TL;DR — readers will find them in the full briefing below. This is for people who have 30 seconds.
+- Start with a "## TL;DR" section: 5-8 bullet points, each ONE sentence max, covering the single most important fact from each major story. Every TL;DR bullet MUST include at least one source link in markdown format: "([source label](URL))".
 - Then a horizontal rule (---) separator
 - Then the full briefing:
 - 5-12 theme sections (use as many as needed to cover all newsworthy items), each: **Bold headline phrase** followed by 1-4 bullets
