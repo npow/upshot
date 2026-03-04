@@ -28,7 +28,7 @@ dedup:
 # Claude enrichment (via claude-relay)
 claude:
   model: "sonnet"
-  base_url: "http://localhost:8082"
+  base_url: "http://localhost:18082"
   max_context_words_per_item: 2000
   max_tokens: 4096
   # Max total words to send in the synthesis briefing prompt
