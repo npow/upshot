@@ -4,7 +4,7 @@
 ![upshot](https://hc.deeprecon.app/b/2/7032ae59-33e0-4537-bb29-e7518ad5b44b.svg)
 [![PyPI](https://img.shields.io/pypi/v/upshot)](https://pypi.org/project/upshot/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) [![Docs](https://img.shields.io/badge/docs-mintlify-18a34a?style=flat-square)](https://mintlify.com/npow/upshot)
 
 Get the key takeaways from all your newsletters and feeds in one daily briefing.
 
