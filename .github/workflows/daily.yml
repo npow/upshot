@@ -1,8 +1,15 @@
 name: Daily pipeline trigger
 
+# Schedule disabled 2026-05-09: the Hetzner host (188.34.193.79) that runs
+# claude-relay + pipeline became unreachable on TCP (host up via ICMP, all
+# ports dropped — likely a firewall rule got removed on reboot). The cron
+# was failing every morning with "ssh: connect ... Connection timed out".
+# Re-enable by uncommenting the `schedule:` block once the box's SSH is
+# reachable again. workflow_dispatch is kept so the trigger is still
+# manually callable for testing once the host is back.
 on:
-  schedule:
-    - cron: "0 7 * * *"
+  # schedule:
+  #   - cron: "0 7 * * *"
   workflow_dispatch:
 
 jobs:
